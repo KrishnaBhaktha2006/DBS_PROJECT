@@ -4,8 +4,8 @@
 --              DATETIME → TIMESTAMP, TEXT → CLOB
 -- ═══════════════════════════════════════════════════
 
-CREATE DATABASE IF NOT EXISTS marketplace_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE marketplace_db;
+CREATE DATABASE IF NOT EXISTS retail_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE retail_db;
 
 -- ── 1. Users ─────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS Users (
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS Listing (
     title       VARCHAR(200)  NOT NULL,
     description TEXT,
     price       DECIMAL(12,2) NOT NULL,
-    cond        VARCHAR(30)   NOT NULL,   -- new, like_new, good, fair, poor
+    cond        VARCHAR(30)   DEFAULT NULL,   -- new, like_new, good, fair, poor
     type        VARCHAR(10)   NOT NULL,   -- buy | sell
     status      VARCHAR(20)   NOT NULL DEFAULT 'active',  -- active | sold | closed | fulfilled
     created_at  DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -94,11 +94,5 @@ CREATE TABLE IF NOT EXISTS Notification (
 );
 
 -- ── Indexes for performance ───────────────────────────
-CREATE INDEX idx_listing_status   ON Listing(status);
-CREATE INDEX idx_listing_type     ON Listing(type);
-CREATE INDEX idx_listing_c_id     ON Listing(c_id);
-CREATE INDEX idx_listing_price    ON Listing(price);
-CREATE INDEX idx_offer_listing    ON Offer(listing_id);
-CREATE INDEX idx_offer_buyer      ON Offer(buyer_id);
-CREATE INDEX idx_alert_u_id       ON Alert(u_id);
-CREATE INDEX idx_notif_u_id       ON Notification(u_id);
+CREATE INDEX idx_listing_price ON Listing(price);
+
