@@ -10,7 +10,7 @@ from datetime import datetime
 from typing import Optional, List
 from decimal import Decimal
 
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 # ═══════════════════════════════════════════════════
@@ -59,7 +59,7 @@ class CategoryOut(BaseModel):
     c_id: int
     name: str
     parent_id: Optional[int]
-    children: List["CategoryOut"] = []
+    children: List["CategoryOut"] = Field(default_factory=list)
 
 
 # ═══════════════════════════════════════════════════

@@ -60,8 +60,9 @@ cd marketplace
 ### 2. Create virtual environment
 
 ```bash
-python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
+py -m venv .venv
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
 ```
 
 ### 3. Install dependencies
@@ -76,9 +77,13 @@ pip install -r requirements.txt
 
 ### 4. Configure environment
 
-```bash
-cp .env.example .env
-# Edit .env with your DB credentials and a strong JWT_SECRET_KEY
+```env
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=appuser
+DB_PASSWORD=your_password
+DB_NAME=retail_db
+JWT_SECRET_KEY=replace_this_with_a_strong_secret
 ```
 
 ### 5. Create the database schema
@@ -96,10 +101,10 @@ mysql -u root -p < sql/schema.sql
 
 ```bash
 # Development (auto-reload)
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 # Or directly
-python app/main.py
+python -m app.main
 ```
 
 ### 7. Open the interactive API docs
