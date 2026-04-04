@@ -10,7 +10,7 @@ from datetime import datetime
 from typing import Optional, List
 from decimal import Decimal
 
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
 
 # ═══════════════════════════════════════════════════
@@ -71,12 +71,14 @@ class ListingCreate(BaseModel):
     title: str
     description: Optional[str] = None
     price: Decimal
-    cond: str           # new | like_new | good | fair | poor
-    type: str           # buy | sell
+    cond: Optional[str] = None
+    type: str
 
     @field_validator("cond")
     @classmethod
     def validate_cond(cls, v):
+        if v is None:
+            return v
         allowed = {"new", "like_new", "good", "fair", "poor"}
         if v not in allowed:
             raise ValueError(f"cond must be one of {allowed}")
@@ -88,6 +90,12 @@ class ListingCreate(BaseModel):
         if v not in {"buy", "sell"}:
             raise ValueError("type must be 'buy' or 'sell'")
         return v
+
+    @model_validator(mode="after")
+    def validate_buy_sell_rules(self):
+        if self.type == "sell" and not self.cond:
+            raise ValueError("cond is required for sell listings")
+        return self
 
 
 class ListingUpdate(BaseModel):
@@ -105,7 +113,7 @@ class ListingOut(BaseModel):
     title: str
     description: Optional[str]
     price: Decimal
-    cond: str
+    cond: Optional[str]
     type: str
     status: str
     created_at: datetime
@@ -177,8 +185,10 @@ class AlertOut(BaseModel):
 class NotificationOut(BaseModel):
     notif_id: int
     u_id: int
-    alert_id: int
+    alert_id: Optional[int]
     listing_id: int
+    event_type: str
+    message: Optional[str] = None
     seen: bool
     created_at: datetime
     listing_title: Optional[str] = None

@@ -42,7 +42,11 @@ def create_offer(listing_id: int, buyer_id: int, offered_price: Decimal, message
         # ── Validate listing ──────────────────────────────
         cursor_execute(
             cursor,
-            "SELECT u_id, status FROM Listing WHERE listing_id = %s",
+            """
+            SELECT l.u_id, l.status, l.title
+            FROM Listing l
+            WHERE l.listing_id = %s
+            """,
             (listing_id,),
         )
         listing = cursor.fetchone()
@@ -63,6 +67,21 @@ def create_offer(listing_id: int, buyer_id: int, offered_price: Decimal, message
             (listing_id, buyer_id, float(offered_price), message),
         )
         offer_id = last_insert_id(cursor)
+        cursor_execute(cursor, "SELECT username FROM Users WHERE u_id = %s", (buyer_id,))
+        buyer = cursor.fetchone()
+        buyer_name = buyer["username"] if buyer else f"User {buyer_id}"
+        cursor_execute(
+            cursor,
+            """
+            INSERT INTO Notification (u_id, alert_id, listing_id, event_type, message, seen)
+            VALUES (%s, NULL, %s, 'offer_received', %s, 0)
+            """,
+            (
+                listing["u_id"],
+                listing_id,
+                f"{buyer_name} sent an offer of {float(offered_price):.2f} for '{listing['title']}'.",
+            ),
+        )
         conn.commit()
         cursor.close()
 
@@ -235,6 +254,19 @@ def accept_offer(offer_id: int, seller_id: int) -> dict:
                 (offer["listing_id"],),
             )
 
+            cursor_execute(
+                cursor,
+                """
+                INSERT INTO Notification (u_id, alert_id, listing_id, event_type, message, seen)
+                VALUES (%s, NULL, %s, 'offer_accepted', %s, 0)
+                """,
+                (
+                    offer["buyer_id"],
+                    offer["listing_id"],
+                    f"Your offer #{offer_id} was accepted.",
+                ),
+            )
+
             conn.commit()   # ✅ All steps succeeded – commit atomically
 
         except HTTPException:
@@ -255,36 +287,47 @@ def accept_offer(offer_id: int, seller_id: int) -> dict:
 
 def reject_offer(offer_id: int, seller_id: int) -> dict:
     """
-    Seller rejects a pending offer.
-
-    SQL:
-        UPDATE Offer
-        SET    status = 'rejected'
-        WHERE  offer_id   = %s
-          AND  status     = 'pending'
-          AND  listing_id IN (SELECT listing_id FROM Listing WHERE u_id = %s)
+    Seller rejects a pending offer and the buyer gets a notification.
     """
     with get_connection() as conn:
-        cursor = conn.cursor()
+        cursor = conn.cursor(dictionary=True)
         cursor_execute(
             cursor,
             """
-            UPDATE Offer
-            SET    status = 'rejected'
-            WHERE  offer_id   = %s
-              AND  status     = 'pending'
-              AND  listing_id IN (
-                       SELECT listing_id FROM Listing WHERE u_id = %s
-                   )
+            SELECT o.buyer_id, o.listing_id
+            FROM Offer o
+            JOIN Listing l ON l.listing_id = o.listing_id
+            WHERE o.offer_id = %s
+              AND o.status = 'pending'
+              AND l.u_id = %s
             """,
             (offer_id, seller_id),
         )
-        if cursor.rowcount == 0:
+        offer = cursor.fetchone()
+        if not offer:
             conn.rollback()
             raise HTTPException(
                 status_code=403,
                 detail="Offer not found, not pending, or not your listing",
             )
+
+        cursor_execute(
+            cursor,
+            "UPDATE Offer SET status = 'rejected' WHERE offer_id = %s",
+            (offer_id,),
+        )
+        cursor_execute(
+            cursor,
+            """
+            INSERT INTO Notification (u_id, alert_id, listing_id, event_type, message, seen)
+            VALUES (%s, NULL, %s, 'offer_rejected', %s, 0)
+            """,
+            (
+                offer["buyer_id"],
+                offer["listing_id"],
+                f"Your offer #{offer_id} was rejected.",
+            ),
+        )
         conn.commit()
         cursor.close()
 

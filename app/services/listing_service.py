@@ -80,14 +80,20 @@ def create_listing(
             # ── 3. Bulk-INSERT notifications ──────────────
             if matching_alerts:
                 notif_values = [
-                    (alert["u_id"], alert["alert_id"], listing_id)
+                    (
+                        alert["u_id"],
+                        alert["alert_id"],
+                        listing_id,
+                        "alert",
+                        f"New listing '{title}' matches one of your alerts.",
+                    )
                     for alert in matching_alerts
                 ]
                 # executemany for batch insert (still parameterised / safe)
                 cursor.executemany(
                     """
-                    INSERT INTO Notification (u_id, alert_id, listing_id, seen)
-                    VALUES (%s, %s, %s, 0)
+                    INSERT INTO Notification (u_id, alert_id, listing_id, event_type, message, seen)
+                    VALUES (%s, %s, %s, %s, %s, 0)
                     """,
                     notif_values,
                 )

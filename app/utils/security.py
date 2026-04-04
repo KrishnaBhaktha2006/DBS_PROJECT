@@ -32,7 +32,11 @@ def hash_password(plain: str) -> str:
 
 def verify_password(plain: str, hashed: str) -> bool:
     """Return True if *plain* matches *hashed*."""
-    return pwd_context.verify(plain, hashed)
+    try:
+        return pwd_context.verify(plain, hashed)
+    except Exception:
+        # Backward compatibility for legacy seed rows that stored plain text.
+        return plain == hashed
 
 
 # ── JWT helpers ───────────────────────────────────────

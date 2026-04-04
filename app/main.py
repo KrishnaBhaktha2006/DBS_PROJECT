@@ -82,14 +82,43 @@ app.include_router(notifications_router)
 #  Health check
 # ──────────────────────────────────────────────────────────────────────────────
 
-from fastapi.staticfiles import StaticFiles
-
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
-
-
 @app.get("/health", tags=["Health"])
 def health():
     return {"status": "healthy", "environment": settings.APP_ENV}
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+#  Static files and SPA routing
+# ──────────────────────────────────────────────────────────────────────────────
+
+from fastapi.responses import FileResponse
+from pathlib import Path
+
+frontend_dir = Path(__file__).parent.parent / "frontend"
+
+@app.get("/", include_in_schema=False)
+async def root():
+    """Serve index.html for root path"""
+    index_path = frontend_dir / "index.html"
+    if index_path.exists():
+        return FileResponse(str(index_path), media_type="text/html")
+    return {"detail": "index.html not found"}, 404
+
+@app.get("/{full_path:path}", include_in_schema=False)
+async def serve_spa(full_path: str):
+    """Serve static files or index.html for SPA routing"""
+    file_path = frontend_dir / full_path
+    
+    # If it's an existing file, serve it
+    if file_path.is_file() and file_path.exists():
+        return FileResponse(str(file_path))
+    
+    # Otherwise serve index.html (SPA routing)
+    index_path = frontend_dir / "index.html"
+    if index_path.exists():
+        return FileResponse(str(index_path), media_type="text/html")
+    
+    return {"detail": "Not Found"}, 404
 
 
 # ──────────────────────────────────────────────────────────────────────────────

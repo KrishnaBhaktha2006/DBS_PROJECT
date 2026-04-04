@@ -40,6 +40,8 @@ def get_user_notifications(u_id: int) -> list[dict]:
                     n.u_id,
                     n.alert_id,
                     n.listing_id,
+                    n.event_type,
+                    n.message,
                     n.seen,
                     n.created_at,
                     l.title AS listing_title

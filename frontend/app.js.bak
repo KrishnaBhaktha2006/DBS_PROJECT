@@ -1,7 +1,7 @@
-const DEFAULT_API_BASE = 'http://127.0.0.1:8000';
+const DEFAULT_API_BASE = localStorage.getItem('marketdeck_api_base') || 'http://127.0.0.1:8000';
 const state = {
   apiBase: DEFAULT_API_BASE,
-  token: localStorage.getItem('marketplace_token') || '',
+  token: localStorage.getItem('marketdeck_token') || '',
   me: null,
   listings: [],
   categories: [],
@@ -13,7 +13,7 @@ const state = {
   loading: true,
   busy: false,
   error: '',
-  view: localStorage.getItem('marketplace_token') ? 'activity' : 'auth',
+  view: 'explore',
   filters: {
     type: '',
     c_id: '',
@@ -161,7 +161,6 @@ function renderAppShell() {
   const ownerView = selected && state.me && Number(selected.u_id) === Number(state.me.u_id);
   const offerForListing = selected ? state.selectedOffers : [];
   const unreadNotifications = state.notifications.filter((item) => !Number(item.seen)).length;
-  const isAuthed = Boolean(state.token && state.me);
 
   const listingCategories = ['<option value="">All categories</option>']
     .concat(
@@ -213,15 +212,15 @@ function renderAppShell() {
             <div class="mini-card">
               <div class="split-title">
                 <strong>Current session</strong>
-                <span class="pill ${isAuthed ? 'success' : ''}">${isAuthed ? 'Authenticated' : 'Login required'}</span>
+                <span class="pill ${state.token ? 'success' : ''}">${state.token ? 'Authenticated' : 'Guest mode'}</span>
               </div>
+              <p class="micro">API: ${escapeHtml(state.apiBase)}</p>
               <p class="micro">${state.me ? `Signed in as ${escapeHtml(state.me.username)} (#${state.me.u_id})` : 'Login or register to create content and manage your data.'}</p>
             </div>
           </div>
         </div>
       </section>
 
-      ${isAuthed ? `
       <div class="main-grid" id="explore">
         <aside class="section">
           <div class="section-header">
@@ -232,6 +231,14 @@ function renderAppShell() {
             <button class="button-quiet" data-action="refresh-categories">Refresh</button>
           </div>
           ${renderCategoryTree()}
+          <div class="divider"></div>
+          <div class="stack">
+            <div class="field">
+              <label class="label" for="apiBase">API base URL</label>
+              <input class="ghost-input" id="apiBase" value="${escapeHtml(state.apiBase)}" spellcheck="false" />
+            </div>
+            <button class="button-secondary" data-action="save-api-base">Save API base</button>
+          </div>
         </aside>
 
         <main class="section section-columns">
@@ -302,25 +309,24 @@ function renderAppShell() {
           ${renderSelectedListing(selected, ownerView, offerForListing, createCategoryOptions)}
         </aside>
       </div>
-      ` : ''}
 
       <section class="section" id="dashboard">
         <div class="section-header">
           <div>
             <p class="kicker">Workbench</p>
-            <h2>${isAuthed ? 'Actions and activity' : 'Sign in to continue'}</h2>
+            <h2>Actions and activity</h2>
           </div>
           <div class="tabs">
             <button class="tab ${state.view === 'auth' ? 'active' : ''}" data-view="auth">Auth</button>
-            ${isAuthed ? `<button class="tab ${state.view === 'create' ? 'active' : ''}" data-view="create">Create</button>` : ''}
-            ${isAuthed ? `<button class="tab ${state.view === 'activity' ? 'active' : ''}" data-view="activity">Activity</button>` : ''}
+            <button class="tab ${state.view === 'create' ? 'active' : ''}" data-view="create">Create</button>
+            <button class="tab ${state.view === 'activity' ? 'active' : ''}" data-view="activity">Activity</button>
           </div>
         </div>
 
         <div class="stack">
           ${state.view === 'auth' ? renderAuthPanel() : ''}
-          ${isAuthed && state.view === 'create' ? renderCreatePanel(createCategoryOptions) : ''}
-          ${isAuthed && state.view === 'activity' ? renderActivityPanel() : ''}
+          ${state.view === 'create' ? renderCreatePanel(createCategoryOptions) : ''}
+          ${state.view === 'activity' ? renderActivityPanel() : ''}
         </div>
       </section>
     </div>
@@ -344,6 +350,7 @@ function renderAppShell() {
 }
 
 function renderTopbar() {
+  const statusClass = state.loading ? 'status-dot' : 'status-dot live';
   return `
     <header class="topbar">
       <div class="brand">
@@ -653,7 +660,6 @@ function renderCreatePanel(createCategoryOptions) {
               <select class="select" id="listing_cond" name="cond">
                 ${['new', 'like_new', 'good', 'fair', 'poor'].map((cond) => `<option value="${cond}">${cond}</option>`).join('')}
               </select>
-              <div class="micro">Ignored for buy listings.</div>
             </div>
           </div>
           <div class="form-row">
@@ -762,8 +768,7 @@ function renderNotifications() {
                 <strong>${escapeHtml(notification.listing_title || `Listing ${notification.listing_id}`)}</strong>
                 <span class="pill ${notification.seen ? '' : 'warning'}">${notification.seen ? 'Seen' : 'New'}</span>
               </div>
-              <div class="micro">${escapeHtml(notification.event_type || 'notification')}</div>
-              <div>${escapeHtml(notification.message || 'Activity updated for this listing.')}</div>
+              <div class="micro">Alert #${notification.alert_id} • Listing #${notification.listing_id}</div>
               <div class="timestamp">${formatDate(notification.created_at)}</div>
               ${notification.seen ? '' : `<button class="button-secondary" data-action="mark-seen" data-notif-id="${notification.notif_id}">Mark seen</button>`}
             </article>
@@ -860,6 +865,19 @@ function attachEvents() {
 
   document.querySelectorAll('[data-action="logout"]').forEach((button) => {
     button.addEventListener('click', logout);
+  });
+
+  document.querySelectorAll('[data-action="save-api-base"]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const input = document.getElementById('apiBase');
+      if (!input) return;
+      const value = input.value.trim().replace(/\/$/, '');
+      if (!value) return;
+      state.apiBase = value;
+      localStorage.setItem('marketdeck_api_base', value);
+      pushToast('API base saved', value, 'info');
+      await refreshAll();
+    });
   });
 
   document.querySelectorAll('[data-action="refresh-categories"]').forEach((button) => {
@@ -961,7 +979,7 @@ async function handleLogin(event) {
       body: { email: data.email, password: data.password },
     });
     state.token = result.access_token;
-    localStorage.setItem('marketplace_token', state.token);
+    localStorage.setItem('marketdeck_token', state.token);
     pushToast('Signed in', 'Your session is active.', 'success');
     state.view = 'activity';
     await refreshAll();
@@ -1008,7 +1026,7 @@ async function handleCreateListing(event) {
         title: data.title,
         description: data.description || null,
         price: Number(data.price),
-        cond: data.type === 'buy' ? null : data.cond,
+        cond: data.cond,
         type: data.type,
       },
     });
@@ -1241,7 +1259,6 @@ async function loadListings() {
 async function loadMe() {
   if (!state.token) {
     state.me = null;
-    state.view = 'auth';
     return;
   }
   try {
@@ -1311,9 +1328,8 @@ function logout() {
   state.notifications = [];
   state.alerts = [];
   state.transactions = [];
-  state.selectedListing = null;
   state.selectedOffers = [];
-  localStorage.removeItem('marketplace_token');
+  localStorage.removeItem('marketdeck_token');
   state.view = 'auth';
   pushToast('Signed out', 'Your session was cleared.', 'info');
   render();
