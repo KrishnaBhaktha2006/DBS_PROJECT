@@ -82,9 +82,9 @@ app.include_router(notifications_router)
 #  Health check
 # ──────────────────────────────────────────────────────────────────────────────
 
-@app.get("/", tags=["Health"])
-def root():
-    return {"status": "ok", "message": "Marketplace API is running"}
+from fastapi.staticfiles import StaticFiles
+
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
 
 
 @app.get("/health", tags=["Health"])

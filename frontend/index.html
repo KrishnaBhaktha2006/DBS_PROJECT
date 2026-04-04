@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nexus Slate | Elite Electronics Marketplace</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Public_Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-background": "#191c1d",
+              "on-tertiary-fixed-variant": "#683c11",
+              "on-tertiary": "#ffffff",
+              "on-error-container": "#93000a",
+              "primary-fixed": "#b9eaff",
+              "on-primary-container": "#83bdd4",
+              "tertiary-container": "#673c11",
+              "on-secondary-container": "#526772",
+              "surface-tint": "#28657a",
+              "background": "#f8f9fb",
+              "outline": "#70787c",
+              "tertiary-fixed": "#ffdcc1",
+              "error": "#ba1a1a",
+              "on-secondary-fixed-variant": "#354a53",
+              "surface-container-lowest": "#ffffff",
+              "on-secondary": "#ffffff",
+              "on-tertiary-fixed": "#2e1500",
+              "on-primary-fixed": "#001f29",
+              "on-tertiary-container": "#e5a874",
+              "surface-container-highest": "#e1e3e4",
+              "primary-container": "#004d61",
+              "on-primary-fixed-variant": "#014d61",
+              "inverse-surface": "#2e3132",
+              "surface-container": "#edeef0",
+              "tertiary": "#4c2700",
+              "error-container": "#ffdad6",
+              "surface": "#f8f9fb",
+              "on-surface": "#191c1d",
+              "tertiary-fixed-dim": "#f9b984",
+              "surface-bright": "#f8f9fb",
+              "on-surface-variant": "#40484c",
+              "secondary-fixed": "#cfe6f2",
+              "on-error": "#ffffff",
+              "surface-container-high": "#e7e8ea",
+              "surface-variant": "#e1e3e4",
+              "secondary-container": "#cfe6f2",
+              "surface-container-low": "#f2f4f5",
+              "inverse-on-surface": "#eff1f2",
+              "on-primary": "#ffffff",
+              "outline-variant": "#c0c8cc",
+              "inverse-primary": "#95cfe7",
+              "secondary-fixed-dim": "#b4cad6",
+              "primary": "#003544",
+              "secondary": "#4c616c",
+              "surface-dim": "#d9dadc",
+              "primary-fixed-dim": "#95cfe7",
+              "on-secondary-fixed": "#071e27"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Public Sans"],
+              "label": ["Public Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        vertical-align: middle;
+      }
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: #f2f4f5; }
+      ::-webkit-scrollbar-thumb { background: #c0c8cc; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed">
+<nav class="flex items-center justify-between px-8 py-4 w-full sticky top-0 z-50 bg-[#f8f9fb] dark:bg-[#191c1d] shadow-none">
+<div class="flex items-center gap-12">
+<span class="text-2xl font-extrabold tracking-tighter text-[#003544] dark:text-[#004d61] font-['Manrope']">Nexus Slate</span>
+<div class="hidden md:flex gap-8 font-['Manrope'] text-sm tracking-wide">
+<a class="text-[#003544] dark:text-[#004d61] font-bold border-b-2 border-[#003544] pb-1" href="#">Categories</a>
+<a class="text-[#40484b] dark:text-[#bfc8cb] font-medium hover:bg-[#e7e8ea] dark:hover:bg-[#2b3133] transition-all px-2 py-1 rounded" href="#">Deals</a>
+<a class="text-[#40484b] dark:text-[#bfc8cb] font-medium hover:bg-[#e7e8ea] dark:hover:bg-[#2b3133] transition-all px-2 py-1 rounded" href="#">Sell</a>
+<a class="text-[#40484b] dark:text-[#bfc8cb] font-medium hover:bg-[#e7e8ea] dark:hover:bg-[#2b3133] transition-all px-2 py-1 rounded" href="#">Support</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden lg:block group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-lowest border-none rounded-xl w-64 focus:ring-2 focus:ring-primary transition-all font-body text-sm placeholder:text-outline-variant" placeholder="Search devices..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-[#40484b] dark:text-[#bfc8cb] hover:bg-[#e7e8ea] dark:hover:bg-[#2b3133] rounded-full active:scale-95 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-[#40484b] dark:text-[#bfc8cb] hover:bg-[#e7e8ea] dark:hover:bg-[#2b3133] rounded-full active:scale-95 transition-transform duration-200 relative">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<img alt="User profile" class="w-10 h-10 rounded-full border-2 border-surface-container-high cursor-pointer hover:opacity-80 transition-opacity" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0z8oMPUKqNmvINyE7ApyJihdLZ829i9VoYQPYbRJKd6Sus5TyRFs_ZdT9aG1Uh2Qf4TNsx4bUWrSF_Du1dSnYqs7STGn6YHSemgGOrDiJOm2qwE2MQXVQpqD6UbbMFGemNH80zTZWgqLZOKNiOSyAOWiB2lY8DsqiOFOGLbAYM3ecFJZMKJb1LMJWDRLh45UvLzBd26o0mqQmTDQGAP62VZFH0idhuIqpSQ12w47wBnNwyuCs6hjwQy4KsQdP6Oq3RIDUschRQwM"/>
+</div>
+</div>
+</nav>
+<main class="flex min-h-screen">
+<aside class="hidden xl:flex flex-col h-screen py-8 px-4 w-64 fixed left-0 top-16 bg-[#f2f4f5] dark:bg-[#1c2021] z-40 overflow-y-auto">
+<div class="mb-8 px-4">
+<h3 class="font-headline font-bold text-[#003544] text-lg mb-1">Merchant Hub</h3>
+<p class="text-on-surface-variant text-xs font-medium">Elite Seller Status</p>
+</div>
+<nav class="flex flex-col gap-1 font-['Public_Sans'] text-sm mb-auto">
+<a class="bg-gradient-to-r from-[#003544] to-[#004d61] text-white rounded-md px-4 py-3 shadow-sm flex items-center gap-3 transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="text-[#40484b] dark:text-[#bfc8cb] px-4 py-3 hover:bg-[#e7e8ea] dark:hover:bg-[#2b3133] rounded-md flex items-center gap-3 group transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="shopping_bag">shopping_bag</span>
+<span>Orders</span>
+</a>
+<a class="text-[#40484b] dark:text-[#bfc8cb] px-4 py-3 hover:bg-[#e7e8ea] dark:hover:bg-[#2b3133] rounded-md flex items-center gap-3 transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="inventory_2">inventory_2</span>
+<span>Inventory</span>
+</a>
+<a class="text-[#40484b] dark:text-[#bfc8cb] px-4 py-3 hover:bg-[#e7e8ea] dark:hover:bg-[#2b3133] rounded-md flex items-center gap-3 transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="bar_chart">bar_chart</span>
+<span>Analytics</span>
+</a>
+<a class="text-[#40484b] dark:text-[#bfc8cb] px-4 py-3 hover:bg-[#e7e8ea] dark:hover:bg-[#2b3133] rounded-md flex items-center gap-3 transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="mt-8 px-4 space-y-4">
+<button class="w-full py-3 bg-primary text-on-primary rounded-xl font-bold text-sm shadow-md hover:bg-primary-container transition-colors">
+                    Upgrade Plan
+                </button>
+<a class="text-[#40484b] dark:text-[#bfc8cb] px-4 py-3 hover:bg-[#e7e8ea] dark:hover:bg-[#2b3133] rounded-md flex items-center gap-3 transition-all font-['Public_Sans'] text-sm" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="help">help</span>
+<span>Help Center</span>
+</a>
+</div>
+</aside>
+<section class="flex-1 ml-0 xl:ml-64 px-4 md:px-8 lg:px-12 py-8 space-y-12">
+<div class="relative overflow-hidden rounded-full min-h-[480px] bg-primary group flex items-center">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover mix-blend-overlay opacity-60" data-alt="ultra-modern minimalist silver laptop on deep blue glass desk with futuristic glowing ambient lighting and soft bokeh effects" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDg1Nn-D7QCdq2LguKlRipvDJFd7symZWVirXmZxgaTk8CQ8BiTuadWkP_l_7O-vWretvzvmMyy3328T2kvQlA4ZjJZ0XOT9nNPLmHWs7u5KMKNC-JjLjg8-Ut-ETGKzUkXcaLpDxa0JVLzCckRIDCTHcBmUznvFR632gK6okssbjVWTouiKVCaL62hL0FOGMOiv56nl0koT_EIwMUSlRzGzZCg0sxgBjp3Y_1awqMQ1LNaciYryhIkvie9eZmHXMD2reikprFHco"/>
+</div>
+<div class="relative z-10 p-12 lg:p-20 max-w-2xl space-y-6">
+<div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-1 rounded-full border border-white/20">
+<span class="w-2 h-2 rounded-full bg-tertiary-fixed-dim animate-pulse"></span>
+<span class="text-white text-xs font-bold tracking-widest uppercase">Featured Collection</span>
+</div>
+<h1 class="font-headline text-5xl md:text-7xl font-extrabold text-white leading-tight">The Future of <span class="text-primary-fixed">Processing</span></h1>
+<p class="text-primary-fixed/80 text-lg md:text-xl font-body max-w-lg leading-relaxed">Experience unyielding performance with the new Nexus Slate M2 series. Re-engineered from the silicon up for creators and analysts.</p>
+<div class="flex flex-wrap gap-4 pt-4">
+<button class="px-8 py-4 bg-white text-primary font-bold rounded-xl hover:bg-primary-fixed transition-colors active:scale-95">Explore Series</button>
+<button class="px-8 py-4 bg-white/10 backdrop-blur-md text-white border border-white/30 font-bold rounded-xl hover:bg-white/20 transition-colors">Watch Demo</button>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<div class="col-span-1 md:col-span-2 lg:col-span-3">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="font-headline text-3xl font-extrabold text-primary">Discover Feed</h2>
+<p class="text-on-surface-variant font-body">Personalized picks based on your tech stack</p>
+</div>
+<div class="flex gap-2">
+<button class="p-2 border border-outline-variant rounded-lg hover:bg-surface-container-high"><span class="material-symbols-outlined">tune</span></button>
+<button class="p-2 border border-outline-variant rounded-lg hover:bg-surface-container-high"><span class="material-symbols-outlined">grid_view</span></button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="discover-feed">
+<div class="bg-surface-container-lowest rounded-xl p-4 group hover:shadow-xl transition-all duration-300 cursor-pointer border border-transparent hover:border-outline-variant/20">
+<div class="relative h-48 mb-4 overflow-hidden rounded-lg bg-surface-container-low">
+<img class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500" data-alt="professional sleek over-ear graphite noise canceling headphones on a stone minimalist stand with cinematic shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhqQrY4mSAUVuSTm8U1rW15Bx9TPbuuYA4VF4RYz8RduamanD5c42Pfz01EIXB7olUk4-LmPFXR5IAtryz1RDD0_v2SAKhJzRebU2ndUnYSk0QN6NPYXHA4csyQP-axRMiNSNIjKg35ZVZhUkJ3m9H9t8LMKcOFXZB9vqpPGQocDbgumXYbtk_x3DEhqnA7mJhsUFYXUhC9dqh0fPzgfTTZ-T4aS-Ref171qVOedYmE9FmQC-MKz6QGDQWcV5OF54tolUCzMKcdmM"/>
+<span class="absolute top-2 left-2 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded">NEW</span>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-start">
+<h3 class="font-headline font-bold text-on-surface">Audio-X Zen Pro</h3>
+<span class="material-symbols-outlined text-outline-variant hover:text-error transition-colors">favorite</span>
+</div>
+<p class="text-on-surface-variant text-xs">High-Fidelity Noise Canceling</p>
+<div class="flex items-center gap-1 text-tertiary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold">4.9</span>
+<span class="text-outline-variant text-[10px] ml-1">(128 reviews)</span>
+</div>
+<div class="flex justify-between items-center pt-2">
+<span class="text-primary font-extrabold text-xl font-headline">$349.00</span>
+<button class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-4 group hover:shadow-xl transition-all duration-300 cursor-pointer border border-transparent hover:border-outline-variant/20">
+<div class="relative h-48 mb-4 overflow-hidden rounded-lg bg-surface-container-low">
+<img class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500" data-alt="modern 4k mirrorless camera with high-end lens on a wood surface with soft morning light through a window" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBL-VPclbf571pTdDDmkYJbyOhhTjChHP5vxBGtUYUANnabtVTWG643Vd9yg_ONP7BLY6YMTlwEe88v-4Mo1pt0-xi3BcUaMUhomq-2OMIkE6IUsqVsLUpJdLm3z2jPJ6kPN0hgiNwCTZSBELr_LhFXS1ZT3GnGcP-nFXj3RY1ZMuVV7QWFuUgMGS_QGJ-N2i3qsgjslmEEWag8sGI5alIo_QQL5fGOoZqENbivDTAqneD9PDnwtNXmbzpe4nzBo_kiybBvKwCKTH8"/>
+<span class="absolute top-2 left-2 bg-tertiary-container text-on-tertiary-container text-[10px] font-bold px-2 py-1 rounded">SALE</span>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-start">
+<h3 class="font-headline font-bold text-on-surface">Lumina Z8 Mark II</h3>
+<span class="material-symbols-outlined text-outline-variant hover:text-error transition-colors">favorite</span>
+</div>
+<p class="text-on-surface-variant text-xs">4K Video | 45.7MP Still</p>
+<div class="flex items-center gap-1 text-tertiary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold">4.8</span>
+<span class="text-outline-variant text-[10px] ml-1">(242 reviews)</span>
+</div>
+<div class="flex justify-between items-center pt-2">
+<div class="flex flex-col">
+<span class="text-primary font-extrabold text-xl font-headline">$2,199.00</span>
+<span class="text-outline-variant line-through text-[10px] font-medium">$2,499.00</span>
+</div>
+<button class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-4 group hover:shadow-xl transition-all duration-300 cursor-pointer border border-transparent hover:border-outline-variant/20">
+<div class="relative h-48 mb-4 overflow-hidden rounded-lg bg-surface-container-low">
+<img class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500" data-alt="smart watch with vibrant amoled display showing health data on a dark textured background with purple light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBxkB6vS5EI9VwI2x9dGi7ZAcST4Bus2k08ftXPDhHdked7dny-0blL-deNNpeHYgwUWnrg8fJlDrhZ8qb8J6HWPxgbsukUXZukiDDnqiiAOibI7F-3yW0CMr1tDxU7RwTMcr97lcc3QYR2UsrLLCYnGDnwL2UJJrlBd2GcqqT3cBgOQzKpVTV_zKMXQmpmRWL16IZMkoYUiCunyU6q6Pe7HxrJ8F5AgcXPhzvrefdOyUk8pOd47A_Es5inLQrkbG_e2IhPMMGmx-A"/>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-start">
+<h3 class="font-headline font-bold text-on-surface">NovaPulse Gen 3</h3>
+<span class="material-symbols-outlined text-outline-variant hover:text-error transition-colors">favorite</span>
+</div>
+<p class="text-on-surface-variant text-xs">AOD Display | Health Pro</p>
+<div class="flex items-center gap-1 text-tertiary">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold">4.7</span>
+<span class="text-outline-variant text-[10px] ml-1">(96 reviews)</span>
+</div>
+<div class="flex justify-between items-center pt-2">
+<span class="text-primary font-extrabold text-xl font-headline">$199.00</span>
+<button class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="space-y-8">
+<div class="bg-surface-container-low rounded-2xl p-6 border border-outline-variant/10">
+<h4 class="font-headline font-bold text-primary mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined">category</span> Categories
+                        </h4>
+<div class="space-y-3" id="categories-list">
+<div class="space-y-2">
+<div class="flex items-center justify-between text-sm font-bold text-primary group cursor-pointer">
+<span>Electronics</span>
+<span class="material-symbols-outlined text-sm transition-transform group-hover:rotate-90">chevron_right</span>
+</div>
+<div class="pl-4 space-y-1 text-xs text-on-surface-variant border-l border-outline-variant/30">
+<p class="py-1 hover:text-primary cursor-pointer flex items-center justify-between">Computers <span class="material-symbols-outlined text-[12px]">keyboard_arrow_right</span></p>
+<div class="pl-3 space-y-1">
+<p class="py-1 text-primary font-bold">Laptops</p>
+<p class="py-1 hover:text-primary">Desktops</p>
+<p class="py-1 hover:text-primary">Peripherals</p>
+</div>
+<p class="py-1 hover:text-primary cursor-pointer">Smartphones</p>
+<p class="py-1 hover:text-primary cursor-pointer">Audio &amp; Sound</p>
+</div>
+</div>
+<div class="flex items-center justify-between text-sm font-medium text-on-surface-variant hover:text-primary cursor-pointer transition-colors py-2">
+<span>Gaming Consoles</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</div>
+<div class="flex items-center justify-between text-sm font-medium text-on-surface-variant hover:text-primary cursor-pointer transition-colors py-2">
+<span>Camera &amp; Photo</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</div>
+</div>
+</div>
+<div class="bg-gradient-to-br from-primary to-primary-container rounded-2xl p-6 text-white relative overflow-hidden">
+<div class="relative z-10 space-y-4">
+<h4 class="font-headline font-bold text-xl">Sell Your Old Tech</h4>
+<p class="text-xs text-primary-fixed/70">Get instant store credit or cash for your used devices.</p>
+<button onclick="document.getElementById('add-listing-modal').classList.remove('hidden')" class="w-full py-3 bg-white text-primary text-xs font-bold rounded-xl hover:bg-primary-fixed transition-all">Create Listing</button>
+</div>
+<span class="material-symbols-outlined absolute -bottom-4 -right-4 text-8xl opacity-10 rotate-12" style="font-variation-settings: 'wght' 700;">devices</span>
+</div>
+<div class="bg-surface-container-highest rounded-2xl p-6">
+<h4 class="font-headline font-bold text-primary mb-4 text-sm">Price Alerts</h4>
+<div class="space-y-4">
+<div class="flex gap-3 items-center">
+<div class="w-10 h-10 rounded-lg bg-white p-1">
+<img class="w-full h-full object-contain" data-alt="abstract tech icon graphic with blue gradients" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBj2c93D23BMZvdDz00qSnXIMsYYsWreqKsxnqmyt4tQPY4dcSOKddOUaLaYBMNO0Z7PqqyMS1Kx_u-qPRF74pxtwx4TRNvgZ9kNezNDedNkHhWMwuBygmLZPCWUJN8DJuk2-byLrXmiCo4MY596pzo5n-GOfTfFzCGvqlbEmDm_MgcryRIMtuioj-vq9-z9mteJvRDjCHFfOIMP9S3VoENrR0LWsM056eordh9derlOjc4uGOMfxZxpT5bFK6LCwIvekLmfe9Lw-M"/>
+</div>
+<div class="flex-1">
+<p class="text-[10px] font-bold text-primary">MacBook Pro M3</p>
+<p class="text-[10px] text-error font-bold">-15% Price Drop</p>
+</div>
+<button class="text-primary hover:bg-white p-1 rounded transition-colors"><span class="material-symbols-outlined text-sm">arrow_forward</span></button>
+</div>
+<div class="flex gap-3 items-center">
+<div class="w-10 h-10 rounded-lg bg-white p-1">
+<img class="w-full h-full object-contain" data-alt="abstract smartphone icon graphic with purple gradients" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiaQUnlZ9isINieZjNjgCTbG82LOxPQnI8VXzYdtm-xnvONkVCkv1mFE_-V_PdRA_02m1WvTNjnJBJAV-EGZcLd23i3CM1flkejkhaL_sXiqGKlxeMpTB5DlmCgHpsH0gT9dPpiMRSiwPYR2-q5mfBySm7G9HjIqRq4U84KjrRAPrQerG-npBmjZOEeLbb_cF9GbE8C6PNLtBap5P-jWG3l-MaN_Gycm0qVvG6tNXLVB1GrkU8RiLBJJMVPI_WlSJCS2srb1p6Z2c"/>
+</div>
+<div class="flex-1">
+<p class="text-[10px] font-bold text-primary">Pixel Watch 2</p>
+<p class="text-[10px] text-tertiary-container font-bold">Low Stock Alert</p>
+</div>
+<button class="text-primary hover:bg-white p-1 rounded transition-colors"><span class="material-symbols-outlined text-sm">arrow_forward</span></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<div id="add-listing-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+  <div class="bg-surface rounded-2xl p-8 max-w-md w-full shadow-2xl relative">
+    <button onclick="document.getElementById('add-listing-modal').classList.add('hidden')" class="absolute top-4 right-4 text-outline hover:text-on-surface">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+    <h2 class="font-headline text-2xl font-bold text-primary mb-6">Create New Listing</h2>
+    <form id="add-listing-form" class="space-y-4">
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant mb-1">Title</label>
+        <input id="listing-title" required class="w-full px-4 py-2 border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary outline-none" type="text" placeholder="e.g. iPhone 13 Pro">
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant mb-1">Description</label>
+        <textarea id="listing-desc" class="w-full px-4 py-2 border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary outline-none" rows="3" placeholder="Condition details..."></textarea>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-on-surface-variant mb-1">Price ($)</label>
+          <input id="listing-price" required class="w-full px-4 py-2 border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary outline-none" type="number" step="0.01" placeholder="99.99">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-on-surface-variant mb-1">Condition</label>
+          <select id="listing-cond" class="w-full px-4 py-2 border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary outline-none">
+            <option value="used">Used</option>
+            <option value="new">New</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-on-surface-variant mb-1">Category</label>
+        <select id="listing-category" class="w-full px-4 py-2 border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary outline-none">
+          <option value="4">Smartphones</option>
+          <option value="5">Laptops</option>
+          <option value="6">Cameras</option>
+          <option value="7">Furniture</option>
+        </select>
+      </div>
+      <button type="submit" class="w-full py-3 bg-primary text-white font-bold rounded-xl hover:bg-primary-container transition-all mt-4">Publish Listing</button>
+    </form>
+  </div>
+</div>
+<footer class="flex flex-col md:flex-row justify-between items-center px-12 py-10 w-full mt-auto bg-[#f8f9fb] dark:bg-[#191c1d] border-t border-transparent bg-[#f2f4f5] dark:bg-[#1c2021]">
+<div class="flex flex-col items-center md:items-start gap-4 mb-8 md:mb-0">
+<span class="font-['Manrope'] font-black text-[#003544] text-xl">Nexus Slate</span>
+<p class="font-['Public_Sans'] text-xs uppercase tracking-widest text-[#40484b] dark:text-[#bfc8cb] max-w-xs text-center md:text-left">
+                © 2024 Nexus Slate Electronics Marketplace.
+            </p>
+</div>
+<div class="flex flex-wrap justify-center gap-8 font-['Public_Sans'] text-xs uppercase tracking-widest">
+<a class="text-[#40484b] dark:text-[#bfc8cb] hover:text-[#004d61] transition-colors opacity-80 hover:opacity-100" href="#">Privacy Policy</a>
+<a class="text-[#40484b] dark:text-[#bfc8cb] hover:text-[#004d61] transition-colors opacity-80 hover:opacity-100" href="#">Terms of Service</a>
+<a class="text-[#40484b] dark:text-[#bfc8cb] hover:text-[#004d61] transition-colors opacity-80 hover:opacity-100" href="#">Shipping Info</a>
+<a class="text-[#40484b] dark:text-[#bfc8cb] hover:text-[#004d61] transition-colors opacity-80 hover:opacity-100" href="#">Contact Support</a>
+</div>
+<div class="flex gap-4 mt-8 md:mt-0">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary cursor-pointer hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined text-sm">public</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary cursor-pointer hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined text-sm">mail</span>
+</div>
+</div>
+</footer>
+<script>
+async function loadData() {
+  try {
+    const apiBase = 'http://127.0.0.1:8000';
+    const [listingsRes, categoriesRes] = await Promise.all([
+      fetch(`${apiBase}/listings`),
+      fetch(`${apiBase}/categories`)
+    ]);
+
+    const listingsData = await listingsRes.json();
+    const categoriesData = await categoriesRes.json();
+
+    const listings = listingsData.data || [];
+    const categories = categoriesData.data || [];
+
+    const defaultImages = [
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuDhqQrY4mSAUVuSTm8U1rW15Bx9TPbuuYA4VF4RYz8RduamanD5c42Pfz01EIXB7olUk4-LmPFXR5IAtryz1RDD0_v2SAKhJzRebU2ndUnYSk0QN6NPYXHA4csyQP-axRMiNSNIjKg35ZVZhUkJ3m9H9t8LMKcOFXZB9vqpPGQocDbgumXYbtk_x3DEhqnA7mJhsUFYXUhC9dqh0fPzgfTTZ-T4aS-Ref171qVOedYmE9FmQC-MKz6QGDQWcV5OF54tolUCzMKcdmM",
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuBL-VPclbf571pTdDDmkYJbyOhhTjChHP5vxBGtUYUANnabtVTWG643Vd9yg_ONP7BLY6YMTlwEe88v-4Mo1pt0-xi3BcUaMUhomq-2OMIkE6IUsqVsLUpJdLm3z2jPJ6kPN0hgiNwCTZSBELr_LhFXS1ZT3GnGcP-nFXj3RY1ZMuVV7QWFuUgMGS_QGJ-N2i3qsgjslmEEWag8sGI5alIo_QQL5fGOoZqENbivDTAqneD9PDnwtNXmbzpe4nzBo_kiybBvKwCKTH8",
+      "https://lh3.googleusercontent.com/aida-public/AB6AXuBxkB6vS5EI9VwI2x9dGi7ZAcST4Bus2k08ftXPDhHdked7dny-0blL-deNNpeHYgwUWnrg8fJlDrhZ8qb8J6HWPxgbsukUXZukiDDnqiiAOibI7F-3yW0CMr1tDxU7RwTMcr97lcc3QYR2UsrLLCYnGDnwL2UJJrlBd2GcqqT3cBgOQzKpVTV_zKMXQmpmRWL16IZMkoYUiCunyU6q6Pe7HxrJ8F5AgcXPhzvrefdOyUk8pOd47A_Es5inLQrkbG_e2IhPMMGmx-A"
+    ];
+
+    const discoverFeed = document.getElementById('discover-feed');
+    if (listings.length > 0) {
+      discoverFeed.innerHTML = listings.map((l, idx) => `
+        <div class="bg-surface-container-lowest rounded-xl p-4 group hover:shadow-xl transition-all duration-300 cursor-pointer border border-transparent hover:border-outline-variant/20">
+          <div class="relative h-48 mb-4 overflow-hidden rounded-lg bg-surface-container-low">
+            <img class="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500" data-alt="Product Image" src="${defaultImages[idx % defaultImages.length]}"/>
+            ${l.cond === 'new' ? '<span class="absolute top-2 left-2 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded">NEW</span>' : ''}
+          </div>
+          <div class="space-y-2">
+            <div class="flex justify-between items-start">
+              <h3 class="font-headline font-bold text-on-surface line-clamp-1">${escapeHtml(l.title)}</h3>
+              <span class="material-symbols-outlined text-outline-variant hover:text-error transition-colors">favorite</span>
+            </div>
+            <p class="text-on-surface-variant text-xs line-clamp-1">${escapeHtml(l.description || '')}</p>
+            <div class="flex items-center gap-1 text-tertiary">
+              <span class="text-xs font-bold px-2 py-0.5 rounded bg-surface-container">Status: ${escapeHtml(l.status)}</span>
+              <span class="text-xs font-bold px-2 py-0.5 rounded bg-surface-container">Type: ${escapeHtml(l.type || 'sell')}</span>
+            </div>
+            <div class="flex justify-between items-center pt-2">
+              <span class="text-primary font-extrabold text-xl font-headline">$${l.price}</span>
+              <button class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center hover:bg-primary hover:text-white transition-all">
+                <span class="material-symbols-outlined">add_shopping_cart</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    const catList = document.getElementById('categories-list');
+    if (categories.length > 0) {
+      catList.innerHTML = `<div class="space-y-2">
+        <div class="flex items-center justify-between text-sm font-bold text-primary group cursor-pointer">
+          <span>All Categories</span>
+        </div>
+        <div class="pl-4 space-y-1 text-xs text-on-surface-variant border-l border-outline-variant/30">
+        ${categories.map(c => `
+          <p class="py-1 hover:text-primary cursor-pointer flex items-center justify-between">${escapeHtml(c.name)} <span class="material-symbols-outlined text-[12px]">keyboard_arrow_right</span></p>
+        `).join('')}
+        </div>
+      </div>`;
+    }
+  } catch (error) {
+    console.error('Failed to load data from backend:', error);
+  }
+}
+function escapeHtml(unsafe) {
+  return String(unsafe)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+window.addEventListener('DOMContentLoaded', loadData);
+
+document.getElementById('add-listing-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const payload = {
+    c_id: parseInt(document.getElementById('listing-category').value),
+    title: document.getElementById('listing-title').value,
+    description: document.getElementById('listing-desc').value,
+    price: document.getElementById('listing-price').value,
+    cond: document.getElementById('listing-cond').value,
+    type: 'sell'
+  };
+
+  try {
+    const res = await fetch('http://127.0.0.1:8000/listings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      document.getElementById('add-listing-modal').classList.add('hidden');
+      document.getElementById('add-listing-form').reset();
+      loadData(); // refresh the feed!
+    } else {
+      alert('Failed to create listing');
+    }
+  } catch (error) {
+    alert('Error connecting to backend');
+  }
+});
+</script>
+</body></html>

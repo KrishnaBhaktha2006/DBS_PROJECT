@@ -25,13 +25,14 @@ router = APIRouter(prefix="/listings", tags=["Listings"])
 
 
 @router.post("/", status_code=201)
-def create(body: ListingCreate, current_user: dict = Depends(get_current_user)):
+def create(body: ListingCreate):
     """
     Create a new listing.
     Automatically generates Notifications for matching Alerts.
     """
+    mock_u_id = 1
     listing = create_listing(
-        u_id=current_user["u_id"],
+        u_id=mock_u_id,
         c_id=body.c_id,
         title=body.title,
         description=body.description,

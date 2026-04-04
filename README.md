@@ -6,7 +6,7 @@ A production-quality marketplace REST API built with **FastAPI**, **raw SQL** (M
 
 ## 📁 Folder Structure
 
-```
+```text
 marketplace/
 ├── .env.example              ← copy to .env and fill in your values
 ├── requirements.txt
@@ -109,8 +109,26 @@ python -m app.main
 
 ### 7. Open the interactive API docs
 
-- Swagger UI: http://localhost:8000/docs
-- ReDoc:       http://localhost:8000/redoc
+- [Swagger UI](http://localhost:8000/docs)
+- [ReDoc](http://localhost:8000/redoc)
+
+---
+
+## Frontend
+
+A polished dependency-free frontend is included in [`frontend/`](frontend). It talks directly to the FastAPI routes, stores the JWT in localStorage, and supports browsing listings, logging in, creating listings, offers, alerts, notifications, transactions, and categories.
+
+### Run it locally
+
+Start the FastAPI server first, then serve the frontend with any static server. On Windows PowerShell, from the project root:
+
+```powershell
+python -m http.server 5173 --directory frontend
+```
+
+Then open [http://localhost:5173](http://localhost:5173) in your browser.
+
+If your backend is running on a different host or port, change the API base URL in the app header after opening the frontend.
 
 ---
 
