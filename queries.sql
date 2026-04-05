@@ -50,6 +50,10 @@ WHERE offer_id = 4;
 
 -- DELETE Queries
 -- 14. Delete an alert
+UPDATE Notification
+SET alert_id = NULL
+WHERE alert_id = 5;
+
 DELETE FROM Alert
 WHERE alert_id = 5;
 

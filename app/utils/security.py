@@ -8,16 +8,13 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+from passlib.hash import pbkdf2_sha256
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 
 from app.config import get_settings
 
 settings = get_settings()
-
-# ── bcrypt context ────────────────────────────────────
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # ── OAuth2 scheme – token must be sent as Bearer ─────
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
@@ -27,13 +24,13 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 def hash_password(plain: str) -> str:
     """Return a bcrypt hash of *plain*."""
-    return pwd_context.hash(plain)
+    return pbkdf2_sha256.hash(plain)
 
 
 def verify_password(plain: str, hashed: str) -> bool:
     """Return True if *plain* matches *hashed*."""
     try:
-        return pwd_context.verify(plain, hashed)
+        return pbkdf2_sha256.verify(plain, hashed)
     except Exception:
         # Backward compatibility for legacy seed rows that stored plain text.
         return plain == hashed

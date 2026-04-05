@@ -90,6 +90,18 @@ def delete_alert(alert_id: int, u_id: int) -> dict:
     """
     with get_connection() as conn:
         cursor = conn.cursor()
+        # Detach notifications first to satisfy FK constraints when removing an alert.
+        cursor_execute(
+            cursor,
+            """
+            UPDATE Notification n
+            JOIN Alert a ON a.alert_id = n.alert_id
+            SET n.alert_id = NULL
+            WHERE n.alert_id = %s
+              AND a.u_id = %s
+            """,
+            (alert_id, u_id),
+        )
         cursor_execute(
             cursor,
             "DELETE FROM Alert WHERE alert_id = %s AND u_id = %s",
