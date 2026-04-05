@@ -57,6 +57,7 @@ def apply_migrations(cursor) -> None:
         "ALTER TABLE Notification MODIFY alert_id INT NULL",
         "ALTER TABLE Notification ADD COLUMN event_type VARCHAR(30) NOT NULL DEFAULT 'alert'",
         "ALTER TABLE Notification ADD COLUMN message VARCHAR(255) DEFAULT NULL",
+        "ALTER TABLE Notification ADD COLUMN dismissed TINYINT(1) NOT NULL DEFAULT 0",
         "CREATE INDEX idx_notification_user_seen ON Notification(u_id, seen)",
     ]
     for statement in migration_statements:

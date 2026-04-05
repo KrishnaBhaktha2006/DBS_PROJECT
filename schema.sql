@@ -87,6 +87,7 @@ CREATE TABLE IF NOT EXISTS Notification (
   event_type VARCHAR(30) NOT NULL DEFAULT 'alert',
   message VARCHAR(255) DEFAULT NULL,
   seen TINYINT(1) NOT NULL DEFAULT 0,
+  dismissed TINYINT(1) NOT NULL DEFAULT 0,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_notif_user FOREIGN KEY (u_id) REFERENCES Users(u_id),
   CONSTRAINT fk_notif_alert FOREIGN KEY (alert_id) REFERENCES Alert(alert_id),

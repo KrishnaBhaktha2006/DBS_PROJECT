@@ -1,6 +1,5 @@
 """
 app/services/category_service.py
-──────────────────────────────────
 Raw-SQL service for category management.
 
 Key query: recursive CTE to fetch the full category tree.
@@ -29,7 +28,6 @@ def create_category(name: str, parent_id: int | None) -> dict:
     with get_connection() as conn:
         cursor = conn.cursor(dictionary=True)
 
-        # ── Validate parent ───────────────────────────────
         if parent_id is not None:
             cursor_execute(
                 cursor,
@@ -42,7 +40,23 @@ def create_category(name: str, parent_id: int | None) -> dict:
                     detail=f"Parent category {parent_id} not found",
                 )
 
-        # ── Insert category ───────────────────────────────
+        cursor_execute(
+            cursor,
+            """
+            SELECT c_id
+            FROM Category
+            WHERE LOWER(name) = LOWER(%s)
+              AND ((parent_id IS NULL AND %s IS NULL) OR parent_id = %s)
+            LIMIT 1
+            """,
+            (name, parent_id, parent_id),
+        )
+        if cursor.fetchone():
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Category already exists under the selected parent",
+            )
+
         cursor_execute(
             cursor,
             "INSERT INTO Category (name, parent_id) VALUES (%s, %s)",
@@ -58,27 +72,21 @@ def get_category_tree() -> list[dict]:
     """
     Fetch all categories and build a nested tree in Python.
 
-    SQL (WITH RECURSIVE – works on MySQL 8+ and Oracle 11g+):
-    ─────────────────────────────────────────────────────────
+    SQL (WITH RECURSIVE - works on MySQL 8+ and Oracle 11g+):
     WITH RECURSIVE cat_tree AS (
-        -- Anchor: root categories (no parent)
         SELECT c_id, name, parent_id, 0 AS depth
-        FROM   Category
-        WHERE  parent_id IS NULL
+        FROM Category
+        WHERE parent_id IS NULL
 
         UNION ALL
 
-        -- Recursive: children joined to current level
         SELECT c.c_id, c.name, c.parent_id, ct.depth + 1
-        FROM   Category   c
-        JOIN   cat_tree   ct ON c.parent_id = ct.c_id
+        FROM Category c
+        JOIN cat_tree ct ON c.parent_id = ct.c_id
     )
     SELECT c_id, name, parent_id, depth
-    FROM   cat_tree
-    ORDER  BY depth, parent_id, c_id;
-    ─────────────────────────────────────────────────────────
-    We then assemble the flat list into a nested dict tree in Python
-    for a clean API response.
+    FROM cat_tree
+    ORDER BY depth, parent_id, c_id;
     """
     with get_connection() as conn:
         cursor = conn.cursor(dictionary=True)
@@ -87,33 +95,30 @@ def get_category_tree() -> list[dict]:
             cursor,
             """
             WITH RECURSIVE cat_tree AS (
-                -- Anchor member: top-level categories
                 SELECT c_id,
                        name,
                        parent_id,
                        0 AS depth
-                FROM   Category
-                WHERE  parent_id IS NULL
+                FROM Category
+                WHERE parent_id IS NULL
 
                 UNION ALL
 
-                -- Recursive member: descend one level at a time
                 SELECT c.c_id,
                        c.name,
                        c.parent_id,
                        ct.depth + 1
-                FROM   Category  c
-                JOIN   cat_tree  ct ON c.parent_id = ct.c_id
+                FROM Category c
+                JOIN cat_tree ct ON c.parent_id = ct.c_id
             )
             SELECT c_id, name, parent_id, depth
-            FROM   cat_tree
-            ORDER  BY depth, parent_id, c_id
+            FROM cat_tree
+            ORDER BY depth, parent_id, c_id
             """,
         )
         rows = cursor.fetchall()
         cursor.close()
 
-    # ── Build nested tree ─────────────────────────────────
     node_map: dict[int, dict] = {}
     roots: list[dict] = []
 

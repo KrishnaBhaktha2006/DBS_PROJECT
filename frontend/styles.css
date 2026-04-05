@@ -734,6 +734,15 @@ a:hover {
   gap: 8px;
 }
 
+.alert-row {
+  align-items: center;
+}
+
+.alert-row__meta {
+  gap: 10px;
+  align-items: center;
+}
+
 .split-fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -799,6 +808,22 @@ a:hover {
 
 .listing-card__footer {
   margin-top: 18px;
+}
+
+.listing-card__meta {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.listing-card__seller {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.listing-card__date {
+  font-size: 0.88rem;
 }
 
 .listing-card__footer strong {

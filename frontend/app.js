@@ -7,6 +7,7 @@ const state = {
   me: null,
   categories: [],
   listings: [],
+  alerts: [],
   notifications: [],
   transactions: [],
   selectedListing: null,
@@ -72,6 +73,24 @@ function formatDate(value) {
     hour: '2-digit',
     minute: '2-digit',
   });
+}
+
+function formatListingDate(value, listingId) {
+  if (!value) return 'n/a';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+
+  // Keep DB values unchanged but stagger the displayed timestamps so
+  // seeded/demo listings do not all look identical on the browse page.
+  const numericId = Number(listingId) || 0;
+  const offsetDays = numericId > 0 ? Math.floor((numericId - 1) / 2) : 0;
+  const offsetHours = numericId > 0 ? ((numericId - 1) * 5) % 24 : 0;
+  const offsetMinutes = numericId > 0 ? ((numericId - 1) * 37) % 60 : 0;
+  date.setDate(date.getDate() - offsetDays);
+  date.setHours(date.getHours() - offsetHours);
+  date.setMinutes(date.getMinutes() - offsetMinutes);
+
+  return formatDate(date);
 }
 
 function timeAgo(value) {
@@ -231,14 +250,14 @@ function listingCard(listing) {
       <p class="listing-card__description">${escapeHtml(listing.description || 'No description provided.')}</p>
       <div class="listing-card__meta">
         <span>${escapeHtml(listing.category_name || findCategoryName(listing.c_id))}</span>
-        <span>${escapeHtml(listing.seller_username || 'Unknown seller')}</span>
+        <span class="listing-card__seller">Seller: ${escapeHtml(listing.seller_username || 'Unknown seller')}</span>
       </div>
       <div class="listing-card__footer">
         <strong>${formatMoney(listing.price)}</strong>
         <span>${listing.cond ? escapeHtml(listing.cond.replaceAll('_', ' ')) : 'condition not listed'}</span>
       </div>
       <div class="listing-card__actions">
-        <span>${formatDate(listing.created_at)}</span>
+        <span class="listing-card__date">${formatListingDate(listing.created_at, listing.listing_id)}</span>
         <button class="button-secondary" data-action="open-listing" data-id="${listing.listing_id}" type="button">Click to read more</button>
       </div>
     </article>
@@ -259,6 +278,7 @@ function renderNotificationList(limit = 4) {
         <div class="mini-row__meta">
           <span>${timeAgo(notification.created_at)}</span>
           ${notification.seen ? '' : `<button class="link-button" data-action="mark-seen" data-id="${notification.notif_id}">Mark seen</button>`}
+          <button class="link-button" data-action="delete-notification" data-id="${notification.notif_id}">Delete</button>
         </div>
       </article>
     `,
@@ -280,6 +300,32 @@ function renderTransactionsList(limit = 4) {
         <div class="mini-row__meta">
           <span>${formatMoney(txn.amount)}</span>
           <span>${formatDate(txn.txn_date)}</span>
+        </div>
+      </article>
+    `,
+    )
+    .join('');
+}
+
+function renderAlertsList() {
+  if (!state.alerts.length) {
+    return '<p class="empty-copy">No private alerts yet. Create one to get notified when matching listings appear.</p>';
+  }
+
+  return state.alerts
+    .map(
+      (alert) => `
+      <article class="mini-row alert-row">
+        <div>
+          <strong>${escapeHtml(alert.keyword || 'General alert')}</strong>
+          <p>
+            ${escapeHtml(alert.c_id ? findCategoryName(alert.c_id) : 'All categories')}
+            ${alert.price_limit ? ` · up to ${formatMoney(alert.price_limit)}` : ''}
+          </p>
+        </div>
+        <div class="mini-row__meta alert-row__meta">
+          <span>${formatDate(alert.created_at)}</span>
+          <button class="button-secondary" data-action="delete-alert" data-id="${alert.alert_id}" type="button">Delete</button>
         </div>
       </article>
     `,
@@ -434,6 +480,7 @@ function renderTopbar() {
 
       <div class="topbar-actions">
         ${navButton('sell', 'Sell')}
+        ${navButton('alerts', 'Alerts')}
         ${navButton('product', 'Product')}
         ${navButton('notifications', 'Notifications', unreadCount ? ` <span class="top-nav-count">${unreadCount}</span>` : '')}
         ${navButton('transactions', 'Transactions')}
@@ -502,7 +549,7 @@ function renderAuthPage() {
             ${activeLogin ? '' : '<input class="input" name="username" placeholder="Username" required />'}
             <input class="input" name="email" type="email" placeholder="Email address" required />
             ${activeLogin ? '' : '<input class="input" name="phone" placeholder="Phone number (optional)" />'}
-            <input class="input" name="password" type="password" placeholder="Password" minlength="6" required />
+            <input class="input" name="password" type="password" placeholder="Password" ${activeLogin ? '' : 'minlength="6"'} required />
             <button class="button" type="submit">${activeLogin ? 'Login' : 'Create account'}</button>
           </form>
 
@@ -525,6 +572,7 @@ function renderDashboard() {
   const filteredListings = getFilteredListings();
   const ownListings = state.listings.filter((listing) => Number(listing.u_id) === Number(state.me?.u_id));
   const tab = state.activeTab;
+  const listingModeIsBuy = state.listingForm.type === 'buy';
 
   const accountTab = `
     <section class="panel tab-full">
@@ -585,9 +633,8 @@ function renderDashboard() {
         </div>
         <form class="stack" data-form="filters">
           <select class="select" name="type">
-            <option value="">Any type</option>
-            <option value="sell" ${state.filters.type === 'sell' ? 'selected' : ''}>Sell</option>
-            <option value="buy" ${state.filters.type === 'buy' ? 'selected' : ''}>Buy</option>
+            <option value="">All public listings</option>
+            <option value="sell" ${state.filters.type === 'sell' ? 'selected' : ''}>Sell listings</option>
           </select>
           <select class="select" name="c_id">
             <option value="">All categories</option>
@@ -626,20 +673,21 @@ function renderDashboard() {
         <div class="section-header compact">
           <div>
             <p class="kicker">Sell</p>
-            <h2>New listing</h2>
+            <h2>${listingModeIsBuy ? 'Private alert request' : 'New listing'}</h2>
           </div>
         </div>
+        <p class="detail-copy">${listingModeIsBuy ? 'Buy requests stay private. We will save this as an alert and notify you when matching sell listings appear.' : 'Publish a public sell listing that buyers can browse and make offers on.'}</p>
         <form class="stack" data-form="listing">
-          <input class="input" name="title" placeholder="Listing title" value="${escapeHtml(state.listingForm.title)}" required />
+          <input class="input" name="title" placeholder="${listingModeIsBuy ? 'What are you looking for?' : 'Listing title'}" value="${escapeHtml(state.listingForm.title)}" required />
           <select class="select" name="c_id" required>
             <option value="">Select category</option>
             ${flattenCategories(state.categories).map((category) => `<option value="${category.c_id}" ${String(state.listingForm.c_id) === String(category.c_id) ? 'selected' : ''}>${'— '.repeat(category.depth)}${escapeHtml(category.name)}</option>`).join('')}
           </select>
           <select class="select" name="type">
             <option value="sell" ${state.listingForm.type === 'sell' ? 'selected' : ''}>Sell</option>
-            <option value="buy" ${state.listingForm.type === 'buy' ? 'selected' : ''}>Buy</option>
+            <option value="buy" ${state.listingForm.type === 'buy' ? 'selected' : ''}>Buy privately</option>
           </select>
-          <input class="input" name="price" type="number" min="1" step="1" placeholder="Price" value="${escapeHtml(state.listingForm.price)}" required />
+          <input class="input" name="price" type="number" min="1" step="1" placeholder="${listingModeIsBuy ? 'Maximum budget' : 'Price'}" value="${escapeHtml(state.listingForm.price)}" required />
           <select class="select" name="cond" ${state.listingForm.type === 'buy' ? 'disabled' : ''}>
             <option value="new" ${state.listingForm.cond === 'new' ? 'selected' : ''}>New</option>
             <option value="like_new" ${state.listingForm.cond === 'like_new' ? 'selected' : ''}>Like new</option>
@@ -647,8 +695,8 @@ function renderDashboard() {
             <option value="fair" ${state.listingForm.cond === 'fair' ? 'selected' : ''}>Fair</option>
             <option value="poor" ${state.listingForm.cond === 'poor' ? 'selected' : ''}>Poor</option>
           </select>
-          <textarea class="textarea" name="description" rows="5" placeholder="Write a concise description">${escapeHtml(state.listingForm.description)}</textarea>
-          <button class="button" type="submit">Publish listing</button>
+          <textarea class="textarea" name="description" rows="5" placeholder="${listingModeIsBuy ? 'Add details so we can match the right listings' : 'Write a concise description'}">${escapeHtml(state.listingForm.description)}</textarea>
+          <button class="button" type="submit">${listingModeIsBuy ? 'Save private alert' : 'Publish listing'}</button>
         </form>
       </section>
 
@@ -681,6 +729,42 @@ function renderDashboard() {
     </section>
   `;
 
+  const alertsTab = `
+    <div class="tab-layout tab-layout--two">
+      <section class="panel">
+        <div class="section-header compact">
+          <div>
+            <p class="kicker">Private alerts</p>
+            <h2>Track items quietly</h2>
+          </div>
+        </div>
+        <p class="detail-copy">Register interest in a category, keyword, or max price. Only you can see these alerts, and you will get a notification when a matching listing is posted.</p>
+        <form class="stack" data-form="alert">
+          <select class="select" name="c_id">
+            <option value="">All categories</option>
+            ${flattenCategories(state.categories).map((category) => `<option value="${category.c_id}">${'— '.repeat(category.depth)}${escapeHtml(category.name)}</option>`).join('')}
+          </select>
+          <input class="input" name="keyword" placeholder="Keyword, e.g. iPhone or Royal Enfield" />
+          <input class="input" name="price_limit" type="number" min="1" step="1" placeholder="Max price (optional)" />
+          <button class="button" type="submit">Create private alert</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="section-header compact">
+          <div>
+            <p class="kicker">My alerts</p>
+            <h2>Saved watches</h2>
+          </div>
+          <span class="section-note">${state.alerts.length} total</span>
+        </div>
+        <div class="stack stack-tight">
+          ${renderAlertsList()}
+        </div>
+      </section>
+    </div>
+  `;
+
   const transactionsTab = `
     <section class="panel tab-full">
       <div class="section-header compact">
@@ -703,6 +787,7 @@ function renderDashboard() {
 
   let tabContent = browseTab;
   if (tab === 'sell') tabContent = sellTab;
+  if (tab === 'alerts') tabContent = alertsTab;
   if (tab === 'product') tabContent = productTab;
   if (tab === 'notifications') tabContent = notificationsTab;
   if (tab === 'transactions') tabContent = transactionsTab;
@@ -827,6 +912,15 @@ async function loadNotifications() {
   state.notifications = Array.isArray(data) ? data : [];
 }
 
+async function loadAlerts() {
+  if (!state.token) {
+    state.alerts = [];
+    return;
+  }
+  const data = await api('/alerts/me');
+  state.alerts = Array.isArray(data) ? data : [];
+}
+
 async function loadTransactions() {
   if (!state.token) {
     state.transactions = [];
@@ -842,7 +936,7 @@ async function loadCurrentUser() {
 
 async function loadAuthedData() {
   await loadCurrentUser();
-  await Promise.all([loadCategories(), loadListings(), loadNotifications(), loadTransactions()]);
+  await Promise.all([loadCategories(), loadListings(), loadAlerts(), loadNotifications(), loadTransactions()]);
   if (state.selectedListing) await selectListing(state.selectedListing.listing_id, true);
 }
 
@@ -912,6 +1006,33 @@ async function handleAuthSubmit(form) {
 
 async function handleListingSubmit(form) {
   const payload = Object.fromEntries(new FormData(form).entries());
+
+  if (payload.type === 'buy') {
+    await api('/alerts/', {
+      method: 'POST',
+      body: {
+        c_id: Number(payload.c_id),
+        price_limit: Number(payload.price),
+        keyword: payload.title || null,
+      },
+    });
+
+    state.listingForm = {
+      c_id: '',
+      title: '',
+      description: '',
+      price: '',
+      cond: 'good',
+      type: 'sell',
+    };
+
+    pushToast('Private alert created', 'Your buy request is hidden from Browse and will notify you when matching sell listings appear.', 'success');
+    await loadAlerts();
+    await loadNotifications();
+    render();
+    return;
+  }
+
   await api('/listings/', {
     method: 'POST',
     body: {
@@ -954,6 +1075,25 @@ async function handleOfferSubmit(form) {
   state.activeTab = 'product';
   pushToast('Offer sent', 'The seller can now review your offer.', 'success');
   await selectListing(state.selectedListing.listing_id, true);
+}
+
+async function handleAlertSubmit(form) {
+  const payload = Object.fromEntries(new FormData(form).entries());
+
+  await api('/alerts/', {
+    method: 'POST',
+    body: {
+      c_id: payload.c_id ? Number(payload.c_id) : null,
+      price_limit: payload.price_limit ? Number(payload.price_limit) : null,
+      keyword: payload.keyword?.trim() || null,
+    },
+  });
+
+  form.reset();
+  pushToast('Alert created', 'Your private alert is saved. Matching listings will notify you.', 'success');
+  await loadAlerts();
+  await loadNotifications();
+  render();
 }
 
 async function handleFilterSubmit(form) {
@@ -1025,6 +1165,7 @@ async function runAction(action, target) {
       clearSession();
       state.authView = 'login';
       state.error = '';
+      state.alerts = [];
       state.notifications = [];
       state.transactions = [];
       state.listings = [];
@@ -1064,6 +1205,19 @@ async function runAction(action, target) {
       break;
     case 'mark-seen':
       await api(`/notifications/${target.dataset.id}/seen`, { method: 'PATCH' });
+      await loadNotifications();
+      render();
+      break;
+    case 'delete-notification':
+      await api(`/notifications/${target.dataset.id}`, { method: 'DELETE' });
+      pushToast('Notification deleted', 'The notification has been removed.', 'info');
+      await loadNotifications();
+      render();
+      break;
+    case 'delete-alert':
+      await api(`/alerts/${target.dataset.id}`, { method: 'DELETE' });
+      pushToast('Alert deleted', 'The private alert has been removed.', 'info');
+      await loadAlerts();
       await loadNotifications();
       render();
       break;
@@ -1118,6 +1272,11 @@ el.addEventListener('submit', async (event) => {
       await handleOfferSubmit(form);
       return;
     }
+    if (form.dataset.form === 'alert') {
+      setBusy(true);
+      await handleAlertSubmit(form);
+      return;
+    }
     if (form.dataset.form === 'filters') {
       await handleFilterSubmit(form);
       return;
@@ -1135,6 +1294,18 @@ el.addEventListener('submit', async (event) => {
       state.busy = false;
       render();
     }
+  }
+});
+
+el.addEventListener('change', (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLInputElement || target instanceof HTMLSelectElement || target instanceof HTMLTextAreaElement)) return;
+  const form = target.closest('form');
+  if (!(form instanceof HTMLFormElement) || form.dataset.form !== 'listing') return;
+
+  if (target.name === 'type') {
+    state.listingForm.type = target.value === 'buy' ? 'buy' : 'sell';
+    render();
   }
 });
 

@@ -42,6 +42,12 @@ def create_listing(
       AND  (keyword     IS NULL OR %s LIKE CONCAT('%%', keyword, '%%'))  -- keyword
     ───────────────────────────────────────────────────────────────
     """
+    if listing_type != "sell":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Public listings support sell items only. Use alerts for buy requests.",
+        )
+
     with get_connection() as conn:
         cursor = conn.cursor(dictionary=True)
         try:
@@ -70,10 +76,11 @@ def create_listing(
                 WHERE  (c_id        IS NULL OR c_id        = %s)
                   AND  (price_limit IS NULL OR price_limit >= %s)
                   AND  (keyword     IS NULL
-                        OR %s LIKE CONCAT('%%', keyword, '%%'))
+                        OR %s LIKE CONCAT('%%', keyword, '%%')
+                        OR COALESCE(%s, '') LIKE CONCAT('%%', keyword, '%%'))
                   AND  u_id != %s
                 """,
-                (c_id, float(price), title, u_id),
+                (c_id, float(price), title, description, u_id),
             )
             matching_alerts = cursor.fetchall()
 
@@ -161,9 +168,10 @@ def get_listings(
         sql += " AND l.status = %s"
         params.append(status)
 
-    if listing_type:
-        sql += " AND l.type = %s"
-        params.append(listing_type)
+    if listing_type == "buy":
+        return []
+
+    sql += " AND l.type = 'sell'"
 
     if c_id is not None:
         sql += " AND l.c_id = %s"

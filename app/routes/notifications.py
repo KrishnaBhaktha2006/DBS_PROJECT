@@ -7,7 +7,7 @@ PATCH /notifications/{id}/seen       → mark one as seen
 
 from fastapi import APIRouter, Depends
 
-from app.services.notification_service import get_user_notifications, mark_notification_seen
+from app.services.notification_service import get_user_notifications, mark_notification_seen, delete_notification
 from app.utils.security import get_current_user
 from app.utils.responses import success
 
@@ -29,3 +29,10 @@ def mark_seen(notif_id: int, current_user: dict = Depends(get_current_user)):
     """Mark a notification as seen (owner only)."""
     result = mark_notification_seen(notif_id=notif_id, u_id=current_user["u_id"])
     return success(result, "Notification marked as seen")
+
+
+@router.delete("/{notif_id}")
+def delete_one(notif_id: int, current_user: dict = Depends(get_current_user)):
+    """Delete a notification (owner only)."""
+    result = delete_notification(notif_id=notif_id, u_id=current_user["u_id"])
+    return success(result, "Notification deleted")

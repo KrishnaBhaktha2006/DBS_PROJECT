@@ -12,6 +12,27 @@ INSERT INTO Users (username, email, password_hash, phone)
 SELECT 'Bhavana', 'bhavana@gmail.com', '123', '9123456789'
 WHERE NOT EXISTS (SELECT 1 FROM Users WHERE email = 'bhavana@gmail.com');
 
+UPDATE Users
+SET
+  username = 'Shreyas',
+  password_hash = '123',
+  phone = '9876543210'
+WHERE email = 'shreyas@gmail.com';
+
+UPDATE Users
+SET
+  username = 'Krishna',
+  password_hash = '123',
+  phone = '9845612370'
+WHERE email = 'krishna@gmail.com';
+
+UPDATE Users
+SET
+  username = 'Bhavana',
+  password_hash = '123',
+  phone = '9123456789'
+WHERE email = 'bhavana@gmail.com';
+
 INSERT INTO Category (name, parent_id)
 SELECT 'Electronics', NULL
 WHERE NOT EXISTS (SELECT 1 FROM Category WHERE name = 'Electronics' AND parent_id IS NULL);
@@ -65,6 +86,180 @@ SELECT 'Motorcycles', c_id
 FROM Category
 WHERE name = 'Vehicles' AND parent_id IS NULL
   AND NOT EXISTS (SELECT 1 FROM Category WHERE name = 'Motorcycles');
+
+SET @electronics_root := (
+  SELECT MIN(c_id) FROM Category
+  WHERE name = 'Electronics' AND parent_id IS NULL
+);
+SET @furniture_root := (
+  SELECT MIN(c_id) FROM Category
+  WHERE name = 'Furniture' AND parent_id IS NULL
+);
+SET @vehicles_root := (
+  SELECT MIN(c_id) FROM Category
+  WHERE name = 'Vehicles' AND parent_id IS NULL
+);
+
+UPDATE Category
+SET parent_id = @electronics_root
+WHERE name IN ('Mobile Phones', 'Laptops', 'Cameras');
+
+UPDATE Category
+SET parent_id = @furniture_root
+WHERE name IN ('Sofas', 'Tables');
+
+UPDATE Category
+SET parent_id = @vehicles_root
+WHERE name IN ('Cars', 'Motorcycles');
+
+SET @mobile_phones_id := (
+  SELECT MIN(c_id) FROM Category
+  WHERE name = 'Mobile Phones' AND parent_id = @electronics_root
+);
+SET @laptops_id := (
+  SELECT MIN(c_id) FROM Category
+  WHERE name = 'Laptops' AND parent_id = @electronics_root
+);
+SET @cameras_id := (
+  SELECT MIN(c_id) FROM Category
+  WHERE name = 'Cameras' AND parent_id = @electronics_root
+);
+SET @sofas_id := (
+  SELECT MIN(c_id) FROM Category
+  WHERE name = 'Sofas' AND parent_id = @furniture_root
+);
+SET @tables_id := (
+  SELECT MIN(c_id) FROM Category
+  WHERE name = 'Tables' AND parent_id = @furniture_root
+);
+SET @cars_id := (
+  SELECT MIN(c_id) FROM Category
+  WHERE name = 'Cars' AND parent_id = @vehicles_root
+);
+SET @motorcycles_id := (
+  SELECT MIN(c_id) FROM Category
+  WHERE name = 'Motorcycles' AND parent_id = @vehicles_root
+);
+
+UPDATE Listing l
+JOIN Category c ON c.c_id = l.c_id
+SET l.c_id = @mobile_phones_id
+WHERE c.name = 'Mobile Phones';
+
+UPDATE Alert a
+JOIN Category c ON c.c_id = a.c_id
+SET a.c_id = @mobile_phones_id
+WHERE c.name = 'Mobile Phones';
+
+UPDATE Listing l
+JOIN Category c ON c.c_id = l.c_id
+SET l.c_id = @laptops_id
+WHERE c.name = 'Laptops';
+
+UPDATE Alert a
+JOIN Category c ON c.c_id = a.c_id
+SET a.c_id = @laptops_id
+WHERE c.name = 'Laptops';
+
+UPDATE Listing l
+JOIN Category c ON c.c_id = l.c_id
+SET l.c_id = @cameras_id
+WHERE c.name = 'Cameras';
+
+UPDATE Alert a
+JOIN Category c ON c.c_id = a.c_id
+SET a.c_id = @cameras_id
+WHERE c.name = 'Cameras';
+
+UPDATE Listing l
+JOIN Category c ON c.c_id = l.c_id
+SET l.c_id = @sofas_id
+WHERE c.name = 'Sofas';
+
+UPDATE Alert a
+JOIN Category c ON c.c_id = a.c_id
+SET a.c_id = @sofas_id
+WHERE c.name = 'Sofas';
+
+UPDATE Listing l
+JOIN Category c ON c.c_id = l.c_id
+SET l.c_id = @tables_id
+WHERE c.name = 'Tables';
+
+UPDATE Alert a
+JOIN Category c ON c.c_id = a.c_id
+SET a.c_id = @tables_id
+WHERE c.name = 'Tables';
+
+UPDATE Listing l
+JOIN Category c ON c.c_id = l.c_id
+SET l.c_id = @cars_id
+WHERE c.name = 'Cars';
+
+UPDATE Alert a
+JOIN Category c ON c.c_id = a.c_id
+SET a.c_id = @cars_id
+WHERE c.name = 'Cars';
+
+UPDATE Listing l
+JOIN Category c ON c.c_id = l.c_id
+SET l.c_id = @motorcycles_id
+WHERE c.name = 'Motorcycles';
+
+UPDATE Alert a
+JOIN Category c ON c.c_id = a.c_id
+SET a.c_id = @motorcycles_id
+WHERE c.name = 'Motorcycles';
+
+DELETE FROM Category
+WHERE name = 'Mobile Phones'
+  AND parent_id = @electronics_root
+  AND c_id <> @mobile_phones_id;
+
+DELETE FROM Category
+WHERE name = 'Laptops'
+  AND parent_id = @electronics_root
+  AND c_id <> @laptops_id;
+
+DELETE FROM Category
+WHERE name = 'Cameras'
+  AND parent_id = @electronics_root
+  AND c_id <> @cameras_id;
+
+DELETE FROM Category
+WHERE name = 'Sofas'
+  AND parent_id = @furniture_root
+  AND c_id <> @sofas_id;
+
+DELETE FROM Category
+WHERE name = 'Tables'
+  AND parent_id = @furniture_root
+  AND c_id <> @tables_id;
+
+DELETE FROM Category
+WHERE name = 'Cars'
+  AND parent_id = @vehicles_root
+  AND c_id <> @cars_id;
+
+DELETE FROM Category
+WHERE name = 'Motorcycles'
+  AND parent_id = @vehicles_root
+  AND c_id <> @motorcycles_id;
+
+DELETE FROM Category
+WHERE name = 'Electronics'
+  AND parent_id IS NULL
+  AND c_id <> @electronics_root;
+
+DELETE FROM Category
+WHERE name = 'Furniture'
+  AND parent_id IS NULL
+  AND c_id <> @furniture_root;
+
+DELETE FROM Category
+WHERE name = 'Vehicles'
+  AND parent_id IS NULL
+  AND c_id <> @vehicles_root;
 
 INSERT INTO Alert (u_id, c_id, price_limit, keyword)
 SELECT
@@ -185,6 +380,90 @@ SELECT
   'buy',
   'active'
 WHERE NOT EXISTS (SELECT 1 FROM Listing WHERE title = 'Looking for iPhone 12');
+
+UPDATE Listing
+SET
+  u_id = (SELECT u_id FROM Users WHERE email = 'shreyas@gmail.com'),
+  c_id = (SELECT c_id FROM Category WHERE name = 'Mobile Phones' LIMIT 1),
+  description = 'Good condition, 1 year old, battery health 89%.',
+  price = 45000.00,
+  cond = 'good',
+  type = 'sell',
+  status = 'active',
+  created_at = '2026-04-04 16:36:00'
+WHERE title = 'iPhone 13 for sale';
+
+UPDATE Listing
+SET
+  u_id = (SELECT u_id FROM Users WHERE email = 'shreyas@gmail.com'),
+  c_id = (SELECT c_id FROM Category WHERE name = 'Cars' LIMIT 1),
+  description = 'Single owner, well maintained, insurance active.',
+  price = 650000.00,
+  cond = 'good',
+  type = 'sell',
+  status = 'active',
+  created_at = '2026-04-03 10:03:00'
+WHERE title = 'Honda City 2019';
+
+UPDATE Listing
+SET
+  u_id = (SELECT u_id FROM Users WHERE email = 'krishna@gmail.com'),
+  c_id = (SELECT c_id FROM Category WHERE name = 'Laptops' LIMIT 1),
+  description = 'Brand new sealed box with bill and warranty.',
+  price = 110000.00,
+  cond = 'new',
+  type = 'sell',
+  status = 'active',
+  created_at = '2026-04-05 07:42:00'
+WHERE title = 'MacBook Air M2';
+
+UPDATE Listing
+SET
+  u_id = (SELECT u_id FROM Users WHERE email = 'krishna@gmail.com'),
+  c_id = (SELECT c_id FROM Category WHERE name = 'Motorcycles' LIMIT 1),
+  description = 'Classic 350 preferred, any colour is fine.',
+  price = 150000.00,
+  cond = NULL,
+  type = 'buy',
+  status = 'active',
+  created_at = '2026-04-02 08:29:00'
+WHERE title = 'Looking for Royal Enfield';
+
+UPDATE Listing
+SET
+  u_id = (SELECT u_id FROM Users WHERE email = 'bhavana@gmail.com'),
+  c_id = (SELECT c_id FROM Category WHERE name = 'Cameras' LIMIT 1),
+  description = 'Comes with kit lens, bag, charger, and tripod.',
+  price = 28000.00,
+  cond = 'good',
+  type = 'sell',
+  status = 'active',
+  created_at = '2026-04-01 09:16:00'
+WHERE title = 'Canon EOS 1500D';
+
+UPDATE Listing
+SET
+  u_id = (SELECT u_id FROM Users WHERE email = 'bhavana@gmail.com'),
+  c_id = (SELECT c_id FROM Category WHERE name = 'Sofas' LIMIT 1),
+  description = '3+1+1 sofa set, teak wood, recently polished.',
+  price = 18000.00,
+  cond = 'good',
+  type = 'sell',
+  status = 'active',
+  created_at = '2026-03-31 11:37:00'
+WHERE title = 'Wooden Sofa Set';
+
+UPDATE Listing
+SET
+  u_id = (SELECT u_id FROM Users WHERE email = 'bhavana@gmail.com'),
+  c_id = (SELECT c_id FROM Category WHERE name = 'Mobile Phones' LIMIT 1),
+  description = 'Budget around 30000, clean display preferred.',
+  price = 30000.00,
+  cond = NULL,
+  type = 'buy',
+  status = 'active',
+  created_at = '2026-03-30 10:50:00'
+WHERE title = 'Looking for iPhone 12';
 
 INSERT INTO Offer (listing_id, buyer_id, offered_price, message, status)
 SELECT
