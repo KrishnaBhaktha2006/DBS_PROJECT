@@ -1,4 +1,4 @@
-const DEFAULT_API_BASE = localStorage.getItem('marketdeck_api_base') || 'http://127.0.0.1:8000';
+const DEFAULT_API_BASE = 'http://127.0.0.1:8000';
 const TOKEN_KEY = 'marketdeck_token';
 
 const state = {
@@ -166,11 +166,6 @@ function setBusy(value) {
   render();
 }
 
-function persistApiBase(value) {
-  state.apiBase = value.trim() || DEFAULT_API_BASE;
-  localStorage.setItem('marketdeck_api_base', state.apiBase);
-}
-
 function persistToken(token) {
   state.token = token;
   localStorage.setItem(TOKEN_KEY, token);
@@ -249,7 +244,7 @@ function listingCard(listing) {
       </div>
       <p class="listing-card__description">${escapeHtml(listing.description || 'No description provided.')}</p>
       <div class="listing-card__meta">
-        <span>${escapeHtml(listing.category_name || findCategoryName(listing.c_id))}</span>
+        <span class="listing-card__category">${escapeHtml(listing.category_name || findCategoryName(listing.c_id))}</span>
         <span class="listing-card__seller">Seller: ${escapeHtml(listing.seller_username || 'Unknown seller')}</span>
       </div>
       <div class="listing-card__footer">
@@ -339,7 +334,7 @@ function renderListingDetails() {
     return `
       <div class="detail-empty">
         <h3>Select a listing</h3>
-        <p>Use "Click to read more" on any listing to open the product page.</p>
+        <p>Open any listing to view full details, seller info, and offers here.</p>
       </div>
     `;
   }
@@ -469,7 +464,6 @@ function renderTopbar() {
         <div class="brand-mark">NS</div>
         <div>
           <p class="brand-title">Nexus Slate</p>
-          <p class="brand-subtitle">Marketplace for modern local trading</p>
         </div>
       </button>
 
@@ -481,7 +475,6 @@ function renderTopbar() {
       <div class="topbar-actions">
         ${navButton('sell', 'Sell')}
         ${navButton('alerts', 'Alerts')}
-        ${navButton('product', 'Product')}
         ${navButton('notifications', 'Notifications', unreadCount ? ` <span class="top-nav-count">${unreadCount}</span>` : '')}
         ${navButton('transactions', 'Transactions')}
       </div>
@@ -509,7 +502,6 @@ function renderAuthPage() {
           <div class="brand-mark">NS</div>
           <div>
             <p class="brand-title">Nexus Slate</p>
-            <p class="brand-subtitle">OLX-style marketplace</p>
           </div>
         </div>
         <h1>Trade premium electronics, vehicles, homes, and services in one place.</h1>
@@ -552,15 +544,6 @@ function renderAuthPage() {
             <input class="input" name="password" type="password" placeholder="Password" ${activeLogin ? '' : 'minlength="6"'} required />
             <button class="button" type="submit">${activeLogin ? 'Login' : 'Create account'}</button>
           </form>
-
-          <div class="mini-section">
-            <label class="label" for="apiBaseAuth">API base URL</label>
-            <div class="inline-controls">
-              <input class="ghost-input" id="apiBaseAuth" value="${escapeHtml(state.apiBase)}" />
-              <button class="button-secondary" data-action="save-api-base" type="button">Save</button>
-            </div>
-          </div>
-
           <p class="auth-footnote">New users are inserted into the Users table before the app opens the dashboard.</p>
         </div>
       </section>
@@ -663,6 +646,10 @@ function renderDashboard() {
           <span class="section-note">${filteredListings.length} matching results</span>
         </div>
         ${filteredListings.length ? `<div class="listing-grid">${filteredListings.map(listingCard).join('')}</div>` : '<div class="empty-state"><h3>No listings found</h3><p>Try a different filter or search term to discover more items.</p></div>'}
+
+        <section class="detail subsection" id="detail-panel">
+          ${renderListingDetails()}
+        </section>
       </section>
     </div>
   `;
@@ -779,16 +766,9 @@ function renderDashboard() {
     </section>
   `;
 
-  const productTab = `
-    <section class="detail panel" id="detail-panel">
-      ${renderListingDetails()}
-    </section>
-  `;
-
   let tabContent = browseTab;
   if (tab === 'sell') tabContent = sellTab;
   if (tab === 'alerts') tabContent = alertsTab;
-  if (tab === 'product') tabContent = productTab;
   if (tab === 'notifications') tabContent = notificationsTab;
   if (tab === 'transactions') tabContent = transactionsTab;
   if (tab === 'account') tabContent = accountTab;
@@ -857,7 +837,6 @@ function renderLoading() {
           <div class="brand-mark">NS</div>
           <div>
             <p class="brand-title">Nexus Slate</p>
-            <p class="brand-subtitle">Loading marketplace</p>
           </div>
         </div>
         <p>Preparing your dashboard...</p>
@@ -945,7 +924,7 @@ async function selectListing(listingId, silent = false) {
   state.selectedListing = listing;
   state.selectedSeller = null;
   state.selectedOffers = [];
-  state.activeTab = 'product';
+  state.activeTab = 'browse';
 
   try {
     state.selectedSeller = await api(`/users/${listing.u_id}`, { auth: false });
@@ -1072,7 +1051,7 @@ async function handleOfferSubmit(form) {
     },
   });
 
-  state.activeTab = 'product';
+  state.activeTab = 'browse';
   pushToast('Offer sent', 'The seller can now review your offer.', 'success');
   await selectListing(state.selectedListing.listing_id, true);
 }
@@ -1153,14 +1132,6 @@ async function runAction(action, target) {
       state.authView = target.dataset.view === 'register' ? 'register' : 'login';
       render();
       break;
-    case 'save-api-base': {
-      const input = document.getElementById(state.me ? 'apiBase' : 'apiBaseAuth');
-      if (input) {
-        persistApiBase(input.value);
-        pushToast('API base saved', state.apiBase, 'success');
-      }
-      break;
-    }
     case 'logout':
       clearSession();
       state.authView = 'login';
@@ -1222,7 +1193,7 @@ async function runAction(action, target) {
       render();
       break;
     case 'focus-offer':
-      state.activeTab = 'product';
+      state.activeTab = 'browse';
       render();
       document.getElementById('offer-form-anchor')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       break;

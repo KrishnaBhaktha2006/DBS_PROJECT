@@ -101,22 +101,31 @@ async def root():
     """Serve index.html for root path"""
     index_path = frontend_dir / "index.html"
     if index_path.exists():
-        return FileResponse(str(index_path), media_type="text/html")
+        return FileResponse(
+            str(index_path),
+            media_type="text/html",
+            headers={"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"},
+        )
     return {"detail": "index.html not found"}, 404
 
 @app.get("/{full_path:path}", include_in_schema=False)
 async def serve_spa(full_path: str):
     """Serve static files or index.html for SPA routing"""
     file_path = frontend_dir / full_path
+    no_cache_headers = {"Cache-Control": "no-store, no-cache, must-revalidate, max-age=0"}
     
     # If it's an existing file, serve it
     if file_path.is_file() and file_path.exists():
-        return FileResponse(str(file_path))
+        return FileResponse(str(file_path), headers=no_cache_headers)
     
     # Otherwise serve index.html (SPA routing)
     index_path = frontend_dir / "index.html"
     if index_path.exists():
-        return FileResponse(str(index_path), media_type="text/html")
+        return FileResponse(
+            str(index_path),
+            media_type="text/html",
+            headers=no_cache_headers,
+        )
     
     return {"detail": "Not Found"}, 404
 
