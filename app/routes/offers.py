@@ -1,20 +1,22 @@
 """
 app/routes/offers.py
-─────────────────────
-POST   /offers                         → buyer creates an offer
-GET    /offers/listing/{listing_id}    → seller views offers on their listing
-POST   /offers/{offer_id}/accept       → seller accepts an offer (triggers Txn + sold)
-POST   /offers/{offer_id}/reject       → seller rejects an offer
+POST   /offers                         -> buyer creates an offer
+GET    /offers/listing/{listing_id}    -> seller views offers on their listing
+POST   /offers/{offer_id}/accept       -> seller accepts an offer
+POST   /offers/{offer_id}/reject       -> seller rejects an offer
 """
 
 from fastapi import APIRouter, Depends
 
 from app.models.schemas import OfferCreate
 from app.services.offer_service import (
-    create_offer, get_offers_for_listing, accept_offer, reject_offer,
+    accept_offer,
+    create_offer,
+    get_offers_for_listing,
+    reject_offer,
 )
-from app.utils.security import get_current_user
 from app.utils.responses import success
+from app.utils.security import get_current_user
 
 router = APIRouter(prefix="/offers", tags=["Offers"])
 
@@ -48,11 +50,7 @@ def listing_offers(listing_id: int, current_user: dict = Depends(get_current_use
 def accept(offer_id: int, current_user: dict = Depends(get_current_user)):
     """
     Accept a pending offer.
-    This triggers an atomic DB transaction:
-      • Offer → accepted
-      • All other pending offers → rejected
-      • Txn record created
-      • Listing → sold
+    The database trigger creates the transaction row and closes the listing.
     """
     result = accept_offer(offer_id=offer_id, seller_id=current_user["u_id"])
     return success(result, "Offer accepted and transaction created")

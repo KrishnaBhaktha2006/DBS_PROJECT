@@ -2,8 +2,8 @@
 """
 Project launcher.
 
-Initializes the database from schema.sql and insertion.sql, then starts
-the FastAPI application with uvicorn.
+Initializes the database from schema.sql, insertion.sql, and triggers.sql,
+then starts the FastAPI application with uvicorn.
 """
 
 from __future__ import annotations
@@ -25,19 +25,26 @@ def read_sql_file(path: Path) -> str:
 def split_sql_statements(sql_text: str) -> list[str]:
     statements: list[str] = []
     current: list[str] = []
+    delimiter = ";"
 
     for raw_line in sql_text.splitlines():
         line = raw_line.strip()
         if not line or line.startswith("--"):
             continue
+        if line.upper().startswith("DELIMITER "):
+            delimiter = line.split(None, 1)[1]
+            continue
         current.append(raw_line)
-        if line.endswith(";"):
-            statement = "\n".join(current).strip().rstrip(";").strip()
+        if line.endswith(delimiter):
+            statement = "\n".join(current).strip()
+            statement = statement[: -len(delimiter)].strip()
             if statement:
                 statements.append(statement)
             current = []
 
-    trailing = "\n".join(current).strip().rstrip(";").strip()
+    trailing = "\n".join(current).strip()
+    if trailing.endswith(delimiter):
+        trailing = trailing[: -len(delimiter)].strip()
     if trailing:
         statements.append(trailing)
 
@@ -74,6 +81,7 @@ def init_database() -> bool:
     settings = get_settings()
     schema_path = PROJECT_ROOT / "schema.sql"
     seed_path = PROJECT_ROOT / "insertion.sql"
+    trigger_path = PROJECT_ROOT / "triggers.sql"
 
     print("[db] Initializing database")
     print(f"[db] Host: {settings.MYSQL_HOST}:{settings.MYSQL_PORT}")
@@ -102,6 +110,11 @@ def init_database() -> bool:
             cursor.execute(f"USE {settings.MYSQL_DATABASE}")
             execute_sql_file(cursor, seed_path)
             print("[db] Sample data applied")
+
+        if trigger_path.exists():
+            cursor.execute(f"USE {settings.MYSQL_DATABASE}")
+            execute_sql_file(cursor, trigger_path)
+            print("[db] Triggers applied")
 
         cursor.close()
         connection.close()
